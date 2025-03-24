@@ -1,13 +1,12 @@
 package com.example.noteapp;
 
 import android.app.Application;
-
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
-
 import java.util.List;
 
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
@@ -25,24 +24,30 @@ public class NoteViewModel extends AndroidViewModel {
     public void insert(Note note) {
         disposable.add(repository.insert(note)
                 .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe());
     }
 
     public void update(Note note) {
         disposable.add(repository.update(note)
                 .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe());
     }
 
     public void delete(Note note) {
         disposable.add(repository.delete(note)
                 .subscribeOn(Schedulers.io())
-                .subscribe());    }
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe());
+    }
 
     public void deleteAllNotes() {
         disposable.add(repository.deleteAllNotes()
                 .subscribeOn(Schedulers.io())
-                .subscribe());    }
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe());
+    }
 
     public LiveData<List<Note>> getAllNotes() {
         return allNotes;
