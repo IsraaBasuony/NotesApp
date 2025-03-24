@@ -3,9 +3,7 @@ package com.example.noteapp;
 import android.app.Application;
 import androidx.lifecycle.LiveData;
 import java.util.List;
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Completable;
-import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class NoteRepository {
     private NoteDao noteDao;

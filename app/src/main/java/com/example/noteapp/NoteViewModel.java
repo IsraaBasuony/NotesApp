@@ -5,7 +5,6 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import java.util.List;
-
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
@@ -21,31 +20,38 @@ public class NoteViewModel extends AndroidViewModel {
         allNotes = repository.getAllNotes();
     }
 
-    public void insert(Note note) {
+    public void insert(Note note,Runnable onSuccess) {
         disposable.add(repository.insert(note)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
+                .doOnComplete(onSuccess::run)
                 .subscribe());
     }
 
-    public void update(Note note) {
+    public void update(Note note, Runnable onSuccess, Runnable onFailure) {
         disposable.add(repository.update(note)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
+                .doOnComplete(onSuccess::run)
+                .doOnError(error -> onFailure.run())
                 .subscribe());
     }
 
-    public void delete(Note note) {
+    public void delete(Note note,Runnable onSuccess, Runnable onFailure) {
         disposable.add(repository.delete(note)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
+                .doOnComplete(onSuccess::run)
+                .doOnError(error -> onFailure.run())
                 .subscribe());
     }
 
-    public void deleteAllNotes() {
+    public void deleteAllNotes(Runnable onSuccess, Runnable onFailure) {
         disposable.add(repository.deleteAllNotes()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
+                .doOnComplete(onSuccess::run)
+                .doOnError(error -> onFailure.run())
                 .subscribe());
     }
 
