@@ -1,16 +1,17 @@
 package com.example.noteapp;
 
+import org.litepal.annotation.Column;
+import org.litepal.crud.LitePalSupport;
 
-import androidx.room.Entity;
-import androidx.room.PrimaryKey;
-
-@Entity (tableName = "note_table")
-public class Note {
-    @PrimaryKey(autoGenerate = true)
+public class Note extends LitePalSupport {
+    @Column(unique = true, defaultValue = "0")
     private int id;
     private int priority;
     private String title;
     private String description;
+
+    public Note() {
+    }
 
     public Note(String title, String description, int priority) {
         this.priority = priority;
@@ -20,6 +21,18 @@ public class Note {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public void setPriority(int priority) {
+        this.priority = priority;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public int getId() {
@@ -38,3 +51,4 @@ public class Note {
         return description;
     }
 }
+

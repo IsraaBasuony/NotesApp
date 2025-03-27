@@ -8,21 +8,18 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     public static final int ADD_NOTE_REQUEST = 1;
     public static final int EDIT_NOTE_REQUEST = 2;
+    private static final String TAG = "MAINDB";
 
     private NoteViewModel noteViewModel;
 
@@ -48,11 +45,8 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
 
         noteViewModel = ViewModelProviders.of(this).get(NoteViewModel.class);
-        noteViewModel.getAllNotes().observe(this, new Observer<List<Note>>() {
-            @Override
-            public void onChanged(@Nullable List<Note> notes) {
-                adapter.submitList(notes);
-            }
+        noteViewModel.getAllNotes().observe(this, notes -> {
+            adapter.submitList(notes);
         });
 
         new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,
@@ -110,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
             int priority = data.getIntExtra(AddEditNoteActivity.EXTRA_PRIORITY, 1);
 
             Note note = new Note(title, description, priority);
-            note.setId(id);
+           note.setId(id);
             noteViewModel.update(note
                     , () -> Toast.makeText(this, "Note updated", Toast.LENGTH_SHORT).show()
                     , () -> Toast.makeText(this, "Error: Note can not updated", Toast.LENGTH_SHORT).show()
