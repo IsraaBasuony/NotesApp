@@ -44,7 +44,7 @@ public class AddEditNoteActivity extends AppCompatActivity {
         Intent intent = getIntent();
 
         if (intent.hasExtra(EXTRA_ID)) {
-            setTitle("Edit Note: "+ intent.getStringExtra(EXTRA_TITLE));
+            setTitle("Edit Note: " + intent.getStringExtra(EXTRA_TITLE));
             eTxtTitle.setText(intent.getStringExtra(EXTRA_TITLE));
             eTxtDescription.setText(intent.getStringExtra(EXTRA_DESCRIPTION));
             numberPickerPriority.setValue(intent.getIntExtra(EXTRA_PRIORITY, 1));
@@ -54,6 +54,7 @@ public class AddEditNoteActivity extends AppCompatActivity {
     }
 
     private void saveNote() {
+
         String title = eTxtTitle.getText().toString();
         String description = eTxtDescription.getText().toString();
         int priority = numberPickerPriority.getValue();
@@ -81,18 +82,18 @@ public class AddEditNoteActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater menuInflater = getMenuInflater();
-        menuInflater.inflate(R.menu.add_new_note_menu,menu);
+        menuInflater.inflate(R.menu.add_new_note_menu, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-     if(item.getItemId() == R.id.save_note) {
-         saveNote();
-         return true;
-     }else
-         return super.onOptionsItemSelected(item);
-        }
+        if (item.getItemId() == R.id.save_note) {
+            saveNote();
+            return true;
+        } else
+            return super.onOptionsItemSelected(item);
     }
+}
 
 

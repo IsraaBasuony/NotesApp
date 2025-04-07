@@ -58,7 +58,6 @@ public class NoteViewModel extends AndroidViewModel {
                     fetchAllNotes();
                     onSuccess.run();
                 })
-                .doOnError(error -> onFailure.run())
                 .subscribe());
     }
     public LiveData<List<Note>> getAllNotes() {
@@ -76,7 +75,12 @@ public class NoteViewModel extends AndroidViewModel {
                 .doOnError(error -> onFailure.run())
                 .subscribe());
     }
-;
+
+    @Override
+    protected void onCleared() {
+        super.onCleared();
+        disposable.dispose();
+    }
 }
 
 
