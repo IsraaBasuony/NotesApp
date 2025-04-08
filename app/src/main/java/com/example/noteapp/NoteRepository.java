@@ -52,7 +52,7 @@ public class NoteRepository {
         noteToUpdate.setPriority(note.getPriority());
         noteToUpdate.save();
     }
-//Refactor NoteRepository to use simplified RxJava methods
+
 }
 
 

@@ -15,11 +15,15 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
+
 
 public class MainActivity extends AppCompatActivity {
     public static final int ADD_NOTE_REQUEST = 1;
     public static final int EDIT_NOTE_REQUEST = 2;
     private NoteViewModel noteViewModel;
+    private CompositeDisposable disposable = new CompositeDisposable();
+    private  NoteAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,13 +43,11 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setHasFixedSize(true);
 
-        final NoteAdapter adapter = new NoteAdapter();
+       adapter = new NoteAdapter();
         recyclerView.setAdapter(adapter);
 
         noteViewModel = ViewModelProviders.of(this).get(NoteViewModel.class);
-        noteViewModel.getAllNotes().observe(this, notes -> {
-            adapter.submitList(notes);
-        });
+        loadAllNotes();
 
         new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,
                 ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
@@ -56,9 +58,18 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-                noteViewModel.delete(adapter.getNoteAt(viewHolder.getAdapterPosition()),
-                        () -> Toast.makeText(MainActivity.this, "Note deleted", Toast.LENGTH_SHORT).show()
-                        , () -> Toast.makeText(MainActivity.this, "Error: Note can not deleted", Toast.LENGTH_SHORT).show());
+                noteViewModel.delete(adapter.getNoteAt(viewHolder.getAdapterPosition()), new NoteOperationResultListener() {
+                    @Override
+                    public void onSuccess() {
+                        loadAllNotes();
+                        Toast.makeText(MainActivity.this, "Note is deleted", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onFailure(Throwable throwable) {
+                        Toast.makeText(MainActivity.this, "Error: Note can not be deleted", Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
         }).attachToRecyclerView(recyclerView);
 
@@ -75,6 +86,19 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private void loadAllNotes() {
+        disposable.add(noteViewModel.getAllNotes().subscribe(
+                notes -> {
+                    if(notes != null && !notes.isEmpty())
+                    adapter.submitList(notes);
+                    else
+                        Toast.makeText(MainActivity.this, "No notes available", Toast.LENGTH_SHORT).show();
+                },
+                throwable -> Toast.makeText(MainActivity.this, "Failed to load notes", Toast.LENGTH_SHORT).show()
+
+        ));
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -85,15 +109,24 @@ public class MainActivity extends AppCompatActivity {
             int priority = data.getIntExtra(AddEditNoteActivity.EXTRA_PRIORITY, 1);
 
             Note note = new Note(title, description, priority);
-            noteViewModel.insert(note,
-                    () -> Toast.makeText(this, "Note saved", Toast.LENGTH_SHORT).show()
-            );
+            noteViewModel.insert(note, new NoteOperationResultListener() {
+                @Override
+                public void onSuccess() {
+                    loadAllNotes();
+                    Toast.makeText(MainActivity.this, "Note saved", Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onFailure(Throwable throwable) {
+                    Toast.makeText(MainActivity.this, "Note can not be saved", Toast.LENGTH_SHORT).show();
+                }
+            });
 
         } else if (requestCode == EDIT_NOTE_REQUEST && resultCode == RESULT_OK) {
             int id = data.getIntExtra(AddEditNoteActivity.EXTRA_ID, -1);
 
             if (id == -1) {
-                Toast.makeText(this, "Note can't be updated", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Note can not be updated", Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -103,9 +136,18 @@ public class MainActivity extends AppCompatActivity {
 
             Note note = new Note(title, description, priority);
            note.setId(id);
-            noteViewModel.update(note
-                    , () -> Toast.makeText(this, "Note updated", Toast.LENGTH_SHORT).show()
-                    , () -> Toast.makeText(this, "Error: Note can not updated", Toast.LENGTH_SHORT).show()
+            noteViewModel.update(note, new NoteOperationResultListener() {
+                        @Override
+                        public void onSuccess() {
+                            loadAllNotes();
+                            Toast.makeText(MainActivity.this, " Note is updated", Toast.LENGTH_SHORT).show();
+                        }
+
+                        @Override
+                        public void onFailure(Throwable throwable) {
+                            Toast.makeText(MainActivity.this, "Error: Note can not be updated", Toast.LENGTH_SHORT).show();
+                        }
+                    }
             );
         } else {
             Toast.makeText(this, "Note not saved", Toast.LENGTH_SHORT).show();
@@ -123,12 +165,26 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.delete_all_notes) {
-            noteViewModel.deleteAllNotes(
-                    () -> Toast.makeText(this, "All notes deleted", Toast.LENGTH_SHORT).show()
-                    , () -> Toast.makeText(this, "Error: Notes can not updated", Toast.LENGTH_SHORT).show()
-            );
+            noteViewModel.deleteAllNotes(new NoteOperationResultListener() {
+                @Override
+                public void onSuccess() {
+                    loadAllNotes();
+                    Toast.makeText(MainActivity.this, "All notes deleted", Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onFailure(Throwable throwable) {
+                    Toast.makeText(MainActivity.this, "Error: Notes can not be deleted", Toast.LENGTH_SHORT).show();
+                }
+            });
             return true;
         } else
             return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        disposable.clear();
     }
 }
