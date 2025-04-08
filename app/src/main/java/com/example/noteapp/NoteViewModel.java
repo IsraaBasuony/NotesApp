@@ -14,7 +14,6 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class NoteViewModel extends AndroidViewModel {
-    private static final String TAG = "TAG";
     private NoteRepository repository;
     private CompositeDisposable disposable = new CompositeDisposable();
 
@@ -30,7 +29,6 @@ public class NoteViewModel extends AndroidViewModel {
                 .doOnComplete(() -> {
                     listener.onSuccess();
                     disposable.clear();
-                    Log.i(TAG, "insert: "+ disposable.size());
                 })
                 .doOnError(error -> listener.onFailure(error))
                 .subscribe());
@@ -44,7 +42,6 @@ public class NoteViewModel extends AndroidViewModel {
                 .doOnComplete(() -> {
                     listener.onSuccess();
                     disposable.clear();
-                    Log.i(TAG, "delete: "+disposable.size());
                 })
                 .doOnError(error -> listener.onFailure(error))
                 .subscribe());
@@ -57,7 +54,6 @@ public class NoteViewModel extends AndroidViewModel {
                 .doOnComplete(() -> {
                     listener.onSuccess();
                     disposable.clear();
-                    Log.i(TAG, "deleteAllNotes: " +disposable.size());
                 })
                 .doOnError(error -> listener.onFailure(error))
                 .subscribe());
@@ -75,7 +71,6 @@ public class NoteViewModel extends AndroidViewModel {
                 .doOnComplete(() -> {
                     listener.onSuccess();
                     disposable.clear();
-                    Log.i(TAG, "update: "+disposable.size());
                 })
                 .doOnError(error -> listener.onFailure(error))
                 .subscribe());
