@@ -89,10 +89,8 @@ public class MainActivity extends AppCompatActivity {
     private void loadAllNotes() {
         disposable.add(noteViewModel.getAllNotes().subscribe(
                 notes -> {
-                    if(notes != null && !notes.isEmpty())
-                    adapter.submitList(notes);
-                    else
-                        Toast.makeText(MainActivity.this, "No notes available", Toast.LENGTH_SHORT).show();
+                        adapter.submitList(notes);
+                        disposable.clear();
                 },
                 throwable -> Toast.makeText(MainActivity.this, "Failed to load notes", Toast.LENGTH_SHORT).show()
 

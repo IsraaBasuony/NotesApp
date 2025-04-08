@@ -1,10 +1,10 @@
 package com.example.noteapp;
 
 import android.app.Application;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
-import androidx.lifecycle.MutableLiveData;
 
 import java.util.List;
 
@@ -14,6 +14,7 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class NoteViewModel extends AndroidViewModel {
+    private static final String TAG = "TAG";
     private NoteRepository repository;
     private CompositeDisposable disposable = new CompositeDisposable();
 
@@ -28,6 +29,8 @@ public class NoteViewModel extends AndroidViewModel {
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnComplete(() -> {
                     listener.onSuccess();
+                    disposable.clear();
+                    Log.i(TAG, "insert: "+ disposable.size());
                 })
                 .doOnError(error -> listener.onFailure(error))
                 .subscribe());
@@ -40,6 +43,8 @@ public class NoteViewModel extends AndroidViewModel {
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnComplete(() -> {
                     listener.onSuccess();
+                    disposable.clear();
+                    Log.i(TAG, "delete: "+disposable.size());
                 })
                 .doOnError(error -> listener.onFailure(error))
                 .subscribe());
@@ -51,6 +56,8 @@ public class NoteViewModel extends AndroidViewModel {
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnComplete(() -> {
                     listener.onSuccess();
+                    disposable.clear();
+                    Log.i(TAG, "deleteAllNotes: " +disposable.size());
                 })
                 .doOnError(error -> listener.onFailure(error))
                 .subscribe());
@@ -67,9 +74,17 @@ public class NoteViewModel extends AndroidViewModel {
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnComplete(() -> {
                     listener.onSuccess();
+                    disposable.clear();
+                    Log.i(TAG, "update: "+disposable.size());
                 })
                 .doOnError(error -> listener.onFailure(error))
                 .subscribe());
+    }
+
+    @Override
+    protected void onCleared() {
+        super.onCleared();
+        disposable.clear();
     }
 }
 
